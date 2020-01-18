@@ -1,5 +1,10 @@
+#include "mocks.h"
 #include "unity_fixture.h"
 
+/*******************************************************************************
+ * MockInit test group
+ * Testing functionality related to mocks initialisation and cleanup
+ ******************************************************************************/
 TEST_GROUP(MocksInit);
 
 /*******************************************************************************
@@ -17,14 +22,20 @@ TEST_TEAR_DOWN(MocksInit)
  * Test cases
  ******************************************************************************/
 /*
- * Scenario:
- * Given:
- * When:
- * Then:
+ * Scenario: Initialization of the mocks with 0 threads or empty context fails;
+ * Given:    Mocks not initialized;
+ * When:     Called mocks_init() with either number_of_threads or
+ *           context_buffer_size equal to 0;
+ * Then:     Initialization failed, mocks_not_initialized returned.
  */
-TEST(MocksInit, Dummy)
+TEST(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails)
 {
-  TEST_FAIL_MESSAGE("Start here");
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized, mocks_init(0, 1),
+    "number_of_threads == 0, context_buffer_size != 0");
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized, mocks_init(1, 0),
+    "number_of_threads != 0, context_buffer_size == 0");
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized, mocks_init(0, 0),
+    "number_of_threads == 0, context_buffer_size == 0");
 }
 
 /*******************************************************************************
@@ -32,5 +43,5 @@ TEST(MocksInit, Dummy)
  ******************************************************************************/
 TEST_GROUP_RUNNER(MocksInit)
 {
-  RUN_TEST_CASE(MocksInit, Dummy);
+  RUN_TEST_CASE(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails);
 }

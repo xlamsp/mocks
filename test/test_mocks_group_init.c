@@ -1,11 +1,14 @@
 #include "mocks.h"
 #include "unity_fixture.h"
 
+
 /*******************************************************************************
  * MockInit test group
  * Testing functionality related to mocks initialisation and cleanup
  ******************************************************************************/
 TEST_GROUP(MocksInit);
+
+pthread_t thread_main;
 
 /*******************************************************************************
  * Test setup and teardown
@@ -51,6 +54,29 @@ TEST(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized)
     "Returned status not match");
 }
 
+/*
+ * Scenario: Initialization of the thread when mocks non-initialized fails;
+ * Given:    Mocks not initialized;
+ * When:     Called mocks_init_thread();
+ * Then:     Returned code mocks_not_initialized.
+ */
+TEST(MocksInit, MocksInitThreadWhenNotInitializedFails)
+{
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized, mocks_verify(),
+    "Before calling mocks_init_thread()");
+
+  /*-------------------------------------------
+  | Perform test and Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized,
+    mocks_init_thread(0, &thread_main, 1),
+    "Returned status not match");
+}
+
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -58,4 +84,5 @@ TEST_GROUP_RUNNER(MocksInit)
 {
   RUN_TEST_CASE(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails);
   RUN_TEST_CASE(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized);
+  RUN_TEST_CASE(MocksInit, MocksInitThreadWhenNotInitializedFails);
 }

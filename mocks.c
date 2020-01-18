@@ -3,7 +3,11 @@
 mocks_return_code
 mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
 {
-  return mocks_not_initialized;
+  if (number_of_threads == 0 || context_buffer_size == 0) {
+    return mocks_not_initialized;
+  }
+
+  return mocks_success;
 }
 
 mocks_return_code

@@ -76,6 +76,23 @@ TEST(MocksInit, MocksInitThreadWhenNotInitializedFails)
     "Returned status not match");
 }
 
+/*
+ * Scenario: Initialization of the mocks with 1 thread and 1-byte context
+ *           buffer succeeds;
+ * Given:    Mocks not initialized;
+ * When:     Called mocks_init() with either number_of_threads = 1 and
+ *           context_buffer_size = 1;
+ * Then:     Initialization succeed, mocks_success returned.
+ */
+TEST(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds)
+{
+  /*-------------------------------------------
+  | Perform test and Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, mocks_init(1, 1),
+    "number_of_threads == 1, context_buffer_size == 1");
+}
+
 
 /*******************************************************************************
  * Test group runner
@@ -85,4 +102,5 @@ TEST_GROUP_RUNNER(MocksInit)
   RUN_TEST_CASE(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails);
   RUN_TEST_CASE(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized);
   RUN_TEST_CASE(MocksInit, MocksInitThreadWhenNotInitializedFails);
+  RUN_TEST_CASE(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds);
 }

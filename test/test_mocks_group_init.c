@@ -38,10 +38,24 @@ TEST(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails)
     "number_of_threads == 0, context_buffer_size == 0");
 }
 
+/*
+ * Scenario: Verification of the non-initialized mocks indicates status
+ *           'not initialized';
+ * Given:    Mocks not initialized;
+ * When:     Called mocks_verify();
+ * Then:     Returned code mocks_not_initialized.
+ */
+TEST(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized)
+{
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_not_initialized, mocks_verify(),
+    "Returned status not match");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
 TEST_GROUP_RUNNER(MocksInit)
 {
   RUN_TEST_CASE(MocksInit, MocksInitWithZeroThreadsOrEmptyContextFails);
+  RUN_TEST_CASE(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized);
 }

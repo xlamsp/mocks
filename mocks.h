@@ -13,5 +13,8 @@ typedef enum {
 mocks_return_code
 mocks_init (uint32_t number_of_threads, uint32_t context_buffer_size);
 
+mocks_return_code
+mocks_verify (void);
+
 
 #endif /* MOCKS_H */

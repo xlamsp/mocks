@@ -1,5 +1,7 @@
 #include "mocks.h"
 
+static uint32_t mocks_number_of_threads;
+
 mocks_return_code
 mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
 {
@@ -7,6 +9,7 @@ mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
     return mocks_not_initialized;
   }
 
+  mocks_number_of_threads = number_of_threads;
   return mocks_success;
 }
 
@@ -16,7 +19,19 @@ mocks_init_thread(
   pthread_t  *thread_id,
   uint32_t    number_of_expectations)
 {
-  return mocks_not_initialized;
+  if (mocks_number_of_threads == 0) {
+    return mocks_not_initialized;
+  }
+
+  if (thread_index >= mocks_number_of_threads) {
+    return mocks_thread_index_out_of_range;
+  }
+
+  if (!thread_id) {
+    return mocks_thread_id_is_null;
+  }
+
+  return mocks_thread_bad_number_of_expectations;
 }
 
 mocks_return_code

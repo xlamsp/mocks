@@ -93,6 +93,42 @@ TEST(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds)
     "number_of_threads == 1, context_buffer_size == 1");
 }
 
+/*
+ * Scenario: Initialization of the thread with bad arguments fails;
+ * Given:    Mocks initialized;
+ * When:     Called mocks_init_thread() with thread_index >= number_of_threads
+ *           or thread_id == NULL or number_of_expectation == 0;
+ * Then:     Returned codes are mocks_thread_index_out_of_range,
+ *           mocks_thread_id_is_null or mocks_thread_bad_number_of_expectations
+ *           respectively.
+ */
+TEST(MocksInit, MocksInitThreadWithBadArgumentsFails)
+{
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  const uint32_t number_of_threads = 1;
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_init(number_of_threads, 1),
+    "Mocks initialization failed");
+
+  /*-------------------------------------------
+  | Perform test and Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_thread_index_out_of_range,
+    mocks_init_thread(number_of_threads, &thread_main, 1),
+    "Expected status: mocks_thread_index_out_of_range");
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_thread_id_is_null,
+    mocks_init_thread(number_of_threads - 1, NULL, 1),
+    "Expected status: mocks_thread_id_is_null");
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_thread_bad_number_of_expectations,
+    mocks_init_thread(number_of_threads - 1, &thread_main, 0),
+    "Expected status: mocks_thread_bad_number_of_expectations");
+}
+
 
 /*******************************************************************************
  * Test group runner
@@ -103,4 +139,5 @@ TEST_GROUP_RUNNER(MocksInit)
   RUN_TEST_CASE(MocksInit, MocksVerifyWhenNotInitializedReturnsNotInitialized);
   RUN_TEST_CASE(MocksInit, MocksInitThreadWhenNotInitializedFails);
   RUN_TEST_CASE(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds);
+  RUN_TEST_CASE(MocksInit, MocksInitThreadWithBadArgumentsFails);
 }

@@ -189,6 +189,31 @@ TEST(MocksInit, MocksInitThreadAfterMocksInitSucceeds)
     "Expected status: mocks_success");
 }
 
+/*
+ * Scenario: Verification after mocks init succeeds;
+ * Given:    Mocks initialized;
+ * When:     Called mocks_verify();
+ * Then:     Returned code mocks_success.
+ */
+TEST(MocksInit, MocksVerifyAfterMocksInitSucceeds)
+{
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  const uint32_t number_of_threads = 1;
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_init(number_of_threads, 1),
+    "Mocks initialization failed");
+
+  /*-------------------------------------------
+  | Perform test and Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_verify(),
+    "Returned status not match");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -201,4 +226,5 @@ TEST_GROUP_RUNNER(MocksInit)
   RUN_TEST_CASE(MocksInit, MocksInitThreadWithBadArgumentsFails);
   RUN_TEST_CASE(MocksInit, MocksInitThreadAfterMocksCleanupReturnsNotInitialized);
   RUN_TEST_CASE(MocksInit, MocksInitThreadAfterMocksInitSucceeds);
+  RUN_TEST_CASE(MocksInit, MocksVerifyAfterMocksInitSucceeds);
 }

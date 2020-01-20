@@ -47,5 +47,9 @@ mocks_cleanup(void)
 mocks_return_code
 mocks_verify(void)
 {
-  return mocks_not_initialized;
+  if (mocks_number_of_threads == 0) {
+    return mocks_not_initialized;
+  }
+
+  return mocks_success;
 }

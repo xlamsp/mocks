@@ -1,12 +1,16 @@
 #include "mocks.h"
 #include "unity_fixture.h"
 
-
 /*******************************************************************************
  * MockInit test group
  * Testing functionality related to mocks initialisation and cleanup
  ******************************************************************************/
 TEST_GROUP(MocksInit);
+
+/*******************************************************************************
+ * Local variables and supplemantary procedures
+ ******************************************************************************/
+void test_mocks_reset_static_variables (void);
 
 pthread_t thread_main;
 
@@ -15,6 +19,7 @@ pthread_t thread_main;
  ******************************************************************************/
 TEST_SETUP(MocksInit)
 {
+  test_mocks_reset_static_variables();
 }
 
 TEST_TEAR_DOWN(MocksInit)

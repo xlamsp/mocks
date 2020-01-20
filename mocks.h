@@ -23,6 +23,9 @@ mocks_init_thread (
   pthread_t  *thread_id,
   uint32_t    number_of_expectations);
 
+void
+mocks_cleanup (void);
+
 mocks_return_code
 mocks_verify (void);
 

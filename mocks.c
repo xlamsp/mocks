@@ -34,6 +34,12 @@ mocks_init_thread(
   return mocks_thread_bad_number_of_expectations;
 }
 
+void
+mocks_cleanup(void)
+{
+  mocks_number_of_threads = 0;
+}
+
 mocks_return_code
 mocks_verify(void)
 {

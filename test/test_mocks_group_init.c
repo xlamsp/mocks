@@ -163,6 +163,32 @@ TEST(MocksInit, MocksInitThreadAfterMocksCleanupReturnsNotInitialized)
     "Expected status: mocks_not_initialized");
 }
 
+/*
+ * Scenario: Initialization of the thread after mocks init succeeds;
+ * Given:    Mocks initialized;
+ * When:     Called mocks_init_thread() with valid thread_index, thread_id
+ *           and number_of_expectation;
+ * Then:     Returned code mocks_success.
+ */
+TEST(MocksInit, MocksInitThreadAfterMocksInitSucceeds)
+{
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  const uint32_t number_of_threads = 1;
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_init(number_of_threads, 1),
+    "Mocks initialization failed");
+
+  /*-------------------------------------------
+  | Perform test and Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_init_thread(number_of_threads - 1, &thread_main, 1),
+    "Expected status: mocks_success");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -174,4 +200,5 @@ TEST_GROUP_RUNNER(MocksInit)
   RUN_TEST_CASE(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds);
   RUN_TEST_CASE(MocksInit, MocksInitThreadWithBadArgumentsFails);
   RUN_TEST_CASE(MocksInit, MocksInitThreadAfterMocksCleanupReturnsNotInitialized);
+  RUN_TEST_CASE(MocksInit, MocksInitThreadAfterMocksInitSucceeds);
 }

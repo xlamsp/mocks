@@ -31,7 +31,11 @@ mocks_init_thread(
     return mocks_thread_id_is_null;
   }
 
-  return mocks_thread_bad_number_of_expectations;
+  if (number_of_expectations == 0) {
+    return mocks_thread_bad_number_of_expectations;
+  }
+
+  return mocks_success;
 }
 
 void

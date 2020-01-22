@@ -55,6 +55,15 @@ mocks_expect(
 }
 
 mocks_return_code
+mocks_invoke(
+  uint32_t   *expectation_id,
+  uint32_t   *context_size,
+  void      **context_data)
+{
+  return mocks_no_more_expectations;
+}
+
+mocks_return_code
 mocks_verify(void)
 {
   if (mocks_number_of_threads == 0) {

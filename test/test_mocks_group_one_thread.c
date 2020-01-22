@@ -2,8 +2,8 @@
 #include "unity_fixture.h"
 
 /*******************************************************************************
- * MockInit test group
- * Testing functionality related to mocks initialisation and cleanup
+ * MocksOneThread test group
+ * Testing functionality of mocks in single-thread environment
  ******************************************************************************/
 TEST_GROUP(MocksOneThread);
 
@@ -56,11 +56,21 @@ TEST_TEAR_DOWN(MocksOneThread)
  */
 TEST(MocksOneThread, ExpectCalledOnceSucceeds)
 {
+  mocks_return_code   rc;
+
   /*-------------------------------------------
-  | Perform test and Verify results
+  | Perform test
   -------------------------------------------*/
-  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
-    mocks_expect(DEFAULT_THREAD_INDEX, 0, 0, NULL),
+  rc = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    0,
+    EMPTY_CONTEXT_SIZE,
+    EMPTY_CONTEXT_DATA);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc,
     "Expected status: mocks_success");
 }
 
@@ -72,15 +82,21 @@ TEST(MocksOneThread, ExpectCalledOnceSucceeds)
  */
 TEST(MocksOneThread, InvokeCalledBeforeExpectFails)
 {
-  int         expectation_id;
-  int         context_size;
-  void       *context_data;
+  int                 expectation_id;
+  int                 context_size;
+  void               *context_data;
+
+  mocks_return_code   rc;
 
   /*-------------------------------------------
-  | Perform test and Verify results
+  | Perform test
   -------------------------------------------*/
-  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_more_expectations,
-    mocks_invoke(&expectation_id, &context_size, &context_data),
+  rc = mocks_invoke(&expectation_id, &context_size, &context_data);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_more_expectations, rc,
     "Expected status: mocks_no_more_expectations");
 }
 

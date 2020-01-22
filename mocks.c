@@ -1,6 +1,8 @@
 #include "mocks.h"
 
 static uint32_t mocks_number_of_threads;
+static int expect_count;
+
 
 mocks_return_code
 mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
@@ -51,6 +53,7 @@ mocks_expect(
   uint32_t    context_size,
   void       *context_data)
 {
+  expect_count = 1;
   return mocks_success;
 }
 
@@ -60,7 +63,15 @@ mocks_invoke(
   uint32_t   *context_size,
   void      **context_data)
 {
-  return mocks_no_more_expectations;
+  if (!expect_count) {
+    return mocks_no_more_expectations;
+  }
+
+  *expectation_id = 0;
+  *context_size = 0;
+  *context_data = NULL;
+
+  return mocks_success;
 }
 
 mocks_return_code

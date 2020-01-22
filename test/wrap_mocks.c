@@ -7,4 +7,5 @@
 void test_mocks_reset_static_variables(void)
 {
   mocks_number_of_threads = 0;
+  expect_count = 0;
 }

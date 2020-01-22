@@ -112,7 +112,7 @@ TEST(MocksInit, MocksInitThreadWithBadArgumentsFails)
   /*-------------------------------------------
   | Set expectations
   -------------------------------------------*/
-  const uint32_t number_of_threads = 1;
+  const int number_of_threads = 1;
 
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_init(number_of_threads, 1),
@@ -147,7 +147,7 @@ TEST(MocksInit, MocksInitThreadAfterMocksCleanupReturnsNotInitialized)
   /*-------------------------------------------
   | Set expectations
   -------------------------------------------*/
-  const uint32_t number_of_threads = 1;
+  const int number_of_threads = 1;
 
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_init(number_of_threads, 1),
@@ -175,7 +175,7 @@ TEST(MocksInit, MocksInitThreadAfterMocksInitSucceeds)
   /*-------------------------------------------
   | Set expectations
   -------------------------------------------*/
-  const uint32_t number_of_threads = 1;
+  const int number_of_threads = 1;
 
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_init(number_of_threads, 1),
@@ -200,7 +200,7 @@ TEST(MocksInit, MocksVerifyAfterMocksInitSucceeds)
   /*-------------------------------------------
   | Set expectations
   -------------------------------------------*/
-  const uint32_t number_of_threads = 1;
+  const int number_of_threads = 1;
 
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_init(number_of_threads, 1),

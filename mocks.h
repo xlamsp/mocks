@@ -16,28 +16,28 @@ typedef enum {
 
 
 mocks_return_code
-mocks_init (uint32_t number_of_threads, uint32_t context_buffer_size);
+mocks_init (int number_of_threads, int context_buffer_size);
 
 mocks_return_code
 mocks_init_thread (
-  uint32_t    thread_index,
+  int         thread_index,
   pthread_t  *thread_id,
-  uint32_t    number_of_expectations);
+  int         number_of_expectations);
 
 void
 mocks_cleanup (void);
 
 mocks_return_code
 mocks_expect (
-  uint32_t    thread_index,
-  uint32_t    expectation_id,
-  uint32_t    context_size,
+  int         thread_index,
+  int         expectation_id,
+  int         context_size,
   void       *context_data);
 
 mocks_return_code
 mocks_invoke(
-  uint32_t   *expectation_id,
-  uint32_t   *context_size,
+  int        *expectation_id,
+  int        *context_size,
   void      **context_data);
 
 mocks_return_code

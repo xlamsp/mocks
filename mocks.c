@@ -1,13 +1,13 @@
 #include "mocks.h"
 
-static uint32_t mocks_number_of_threads;
+static int mocks_number_of_threads;
 static int expect_count;
 
 
 mocks_return_code
-mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
+mocks_init(int number_of_threads, int context_buffer_size)
 {
-  if (number_of_threads == 0 || context_buffer_size == 0) {
+  if (number_of_threads <= 0 || context_buffer_size <= 0) {
     return mocks_not_initialized;
   }
 
@@ -17,11 +17,11 @@ mocks_init(uint32_t number_of_threads, uint32_t context_buffer_size)
 
 mocks_return_code
 mocks_init_thread(
-  uint32_t    thread_index,
+  int         thread_index,
   pthread_t  *thread_id,
-  uint32_t    number_of_expectations)
+  int         number_of_expectations)
 {
-  if (mocks_number_of_threads == 0) {
+  if (mocks_number_of_threads <= 0) {
     return mocks_not_initialized;
   }
 
@@ -33,7 +33,7 @@ mocks_init_thread(
     return mocks_thread_id_is_null;
   }
 
-  if (number_of_expectations == 0) {
+  if (number_of_expectations <= 0) {
     return mocks_thread_bad_number_of_expectations;
   }
 
@@ -48,9 +48,9 @@ mocks_cleanup(void)
 
 mocks_return_code
 mocks_expect(
-  uint32_t    thread_index,
-  uint32_t    expectation_id,
-  uint32_t    context_size,
+  int         thread_index,
+  int         expectation_id,
+  int         context_size,
   void       *context_data)
 {
   expect_count = 1;
@@ -59,8 +59,8 @@ mocks_expect(
 
 mocks_return_code
 mocks_invoke(
-  uint32_t   *expectation_id,
-  uint32_t   *context_size,
+  int        *expectation_id,
+  int        *context_size,
   void      **context_data)
 {
   if (!expect_count) {
@@ -77,7 +77,7 @@ mocks_invoke(
 mocks_return_code
 mocks_verify(void)
 {
-  if (mocks_number_of_threads == 0) {
+  if (mocks_number_of_threads <= 0) {
     return mocks_not_initialized;
   }
 

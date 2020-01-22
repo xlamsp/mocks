@@ -72,8 +72,8 @@ TEST(MocksOneThread, ExpectCalledOnceSucceeds)
  */
 TEST(MocksOneThread, InvokeCalledBeforeExpectFails)
 {
-  uint32_t    expectation_id;
-  uint32_t    context_size;
+  int         expectation_id;
+  int         context_size;
   void       *context_data;
 
   /*-------------------------------------------
@@ -93,10 +93,10 @@ TEST(MocksOneThread, InvokeCalledBeforeExpectFails)
  */
 TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
 {
-  const uint32_t      expected_id = 0;
+  const int           expected_id = 0;
 
-  uint32_t            invoked_id = 12345;
-  uint32_t            invoked_context_size = 100;
+  int                 invoked_id = 12345;
+  int                 invoked_context_size = 100;
   void               *invoked_context_data = (void*)0x12345;
 
   mocks_return_code   rc;

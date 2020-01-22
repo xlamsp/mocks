@@ -3,6 +3,7 @@
 static void RunAllTests(void)
 {
   RUN_TEST_GROUP(MocksInit);
+  RUN_TEST_GROUP(MocksOneThread);
 }
 
 int main(int argc, const char **argv)

@@ -27,6 +27,13 @@ void
 mocks_cleanup (void);
 
 mocks_return_code
+mocks_expect (
+  uint32_t    thread_index,
+  uint32_t    expectation_id,
+  uint32_t    context_size,
+  void       *context_data);
+
+mocks_return_code
 mocks_verify (void);
 
 

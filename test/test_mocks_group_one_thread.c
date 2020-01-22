@@ -149,6 +149,49 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
     "mocks_invoke() returned bad context_data");
 }
 
+/*
+ * Scenario: "invoke" called twice after single "expect" fails;
+ * Given:    Called mocks_expect() with empty context once;
+ * When:     Called mocks_invoke() twice;
+ * Then:     Returned code mocks_no_more_expectations.
+ */
+TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
+{
+  const int           expected_id = 0;
+
+  int                 invoked_id = 12345;
+  int                 invoked_context_size = 100;
+  void               *invoked_context_data = (void*)0x12345;
+
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      expected_id,
+      EMPTY_CONTEXT_SIZE,
+      EMPTY_CONTEXT_DATA),
+    "mocks_expect() failed");
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  /* first invoke */
+  rc = mocks_invoke(&invoked_id, &invoked_context_size, &invoked_context_data);
+
+  /* second invoke */
+  rc = mocks_invoke(&invoked_id, &invoked_context_size, &invoked_context_data);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_more_expectations, rc,
+    "Expected status: mocks_no_more_expectations");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -157,4 +200,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, ExpectCalledOnceSucceeds);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledBeforeExpectFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledAfterExpectSucceeds);
+  RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails);
 }

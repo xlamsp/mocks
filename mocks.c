@@ -70,6 +70,7 @@ mocks_invoke(
   *expectation_id = 0;
   *context_size = 0;
   *context_data = NULL;
+  expect_count = 0;
 
   return mocks_success;
 }

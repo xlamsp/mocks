@@ -1,3 +1,5 @@
+#include "unity_fixture_malloc_overrides.h"
+
 #include "mocks.c"
 
 /*

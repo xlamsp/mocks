@@ -12,12 +12,17 @@ UNITY_DIR  = ../unity
 UNITY_SRCS = $(wildcard $(UNITY_DIR)/*.c)
 UNITY_DEPS = $(addprefix $(BUILD_DIR)/,$(notdir $(UNITY_SRCS:.c=.d)))
 UNITY_OBJS = $(UNITY_DEPS:.d=.o)
+UNITY_HEAP_FLAGS =                              \
+	UNITY_EXCLUDE_STDLIB_MALLOC             \
+	UNITY_INTERNAL_HEAP_SIZE_BYTES=256
+UNITY_DEFS = $(addprefix -D,$(UNITY_HEAP_FLAGS))
 
 # Test files
 TEST_DIR  = test
 TEST_SRCS = $(wildcard $(TEST_DIR)/*.c)
 TEST_DEPS = $(addprefix $(BUILD_DIR)/,$(notdir $(TEST_SRCS:.c=.d)))
 TEST_OBJS = $(TEST_DEPS:.d=.o) $(UNITY_OBJS)
+TEST_DEFS = $(UNITY_DEFS)
 
 # Include folders
 INCLUDE_DIRS =                          \
@@ -28,6 +33,7 @@ INCLUDE      =  $(addprefix -I,$(INCLUDE_DIRS))
 # Options
 CC         = gcc
 CFLAGS     = -fPIC -Wall -O0 -g
+
 
 # Dependencies
 -include $(MOCKS_DEPS)
@@ -60,13 +66,13 @@ $(BUILD_DIR)/%.o: $(UNITY_DIR)/%.c
 	@echo
 	@echo Compiling $(notdir $<):
 	@mkdir -p $(dir $@)
-	$(CC) -MMD -MP $(CFLAGS) -c -o $@ $<
+	$(CC) -MMD -MP $(CFLAGS) $(UNITY_DEFS) -c -o $@ $<
 
 $(BUILD_DIR)/%.o: $(TEST_DIR)/%.c
 	@echo
 	@echo Compiling $(notdir $<):
 	@mkdir -p $(dir $@)
-	$(CC) -MMD -MP $(CFLAGS) $(INCLUDE) -c -o $@ $<
+	$(CC) -MMD -MP $(CFLAGS) $(INCLUDE) $(TEST_DEFS) -c -o $@ $<
 
 clean:
 	@echo

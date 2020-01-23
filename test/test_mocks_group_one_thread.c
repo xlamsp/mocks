@@ -280,6 +280,36 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
     "Second mocks_invoke() returned bad context_data");
 }
 
+/*
+ * Scenario: "expect" called up to max number of expectations succeeds;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() NUM_EXPECTATION times with proper
+ *           thread index and empty context;
+ * Then:     Returned code mocks_success.
+ */
+TEST(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds)
+{
+  int i;
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  for (i = 0; i < NUM_EXPECTATIONS; i++) {
+    rc = mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      i,
+      EMPTY_CONTEXT_SIZE,
+      EMPTY_CONTEXT_DATA);
+  }
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc,
+    "Expected status: mocks_success");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -290,4 +320,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, InvokeCalledAfterExpectSucceeds);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds);
+  RUN_TEST_CASE(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds);
 }

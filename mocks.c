@@ -49,6 +49,7 @@ void
 mocks_cleanup(void)
 {
   mocks_number_of_threads = 0;
+  free(expectations);
 }
 
 mocks_return_code

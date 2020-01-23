@@ -187,6 +187,11 @@ TEST(MocksInit, MocksInitThreadAfterMocksInitSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_init_thread(number_of_threads - 1, &thread_main, 1),
     "Expected status: mocks_success");
+
+  /*-------------------------------------------
+  | Cleanup
+  -------------------------------------------*/
+  mocks_cleanup();
 }
 
 /*

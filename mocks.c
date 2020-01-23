@@ -1,7 +1,10 @@
 #include "mocks.h"
+#include <stdlib.h>
 
 static int mocks_number_of_threads;
 static int expect_count;
+static int invoke_count;
+static int *expectations;
 
 
 mocks_return_code
@@ -37,6 +40,8 @@ mocks_init_thread(
     return mocks_thread_bad_number_of_expectations;
   }
 
+  expectations = malloc(number_of_expectations * sizeof(expectations[0]));
+
   return mocks_success;
 }
 
@@ -53,7 +58,8 @@ mocks_expect(
   int         context_size,
   void       *context_data)
 {
-  expect_count = 1;
+  expectations[expect_count] = expectation_id;
+  expect_count++;
   return mocks_success;
 }
 
@@ -63,14 +69,14 @@ mocks_invoke(
   int        *context_size,
   void      **context_data)
 {
-  if (!expect_count) {
+  if (invoke_count >= expect_count) {
     return mocks_no_more_expectations;
   }
 
-  *expectation_id = 0;
+  *expectation_id = expectations[invoke_count];
   *context_size = 0;
   *context_data = NULL;
-  expect_count = 0;
+  invoke_count++;
 
   return mocks_success;
 }

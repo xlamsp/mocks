@@ -12,4 +12,5 @@ void test_mocks_reset_static_variables(void)
   expect_count = 0;
   invoke_count = 0;
   expectations = NULL;
+  max_expectations = 0;
 }

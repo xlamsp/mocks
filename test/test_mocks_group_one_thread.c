@@ -310,6 +310,44 @@ TEST(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds)
     "Expected status: mocks_success");
 }
 
+/*
+ * Scenario: "expect" called more than max number of expectations fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() NUM_EXPECTATION + 1 times with proper
+ *           thread index and empty context;
+ * Then:     Returned code mocks_no_room_for_expectation.
+ */
+TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
+{
+  int i;
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  /* call "expect" up to max number of expectations */
+  for (i = 0; i < NUM_EXPECTATIONS; i++) {
+    rc = mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      i,
+      EMPTY_CONTEXT_SIZE,
+      EMPTY_CONTEXT_DATA);
+  }
+
+  /* call "expect" one more time to exceed max number of expectations */
+  rc = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    i,
+    EMPTY_CONTEXT_SIZE,
+    EMPTY_CONTEXT_DATA);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_room_for_expectation, rc,
+    "Expected status: mocks_no_room_for_expectation");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -321,4 +359,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds);
+  RUN_TEST_CASE(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails);
 }

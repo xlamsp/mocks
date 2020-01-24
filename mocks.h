@@ -12,6 +12,7 @@ typedef enum {
   mocks_thread_id_is_null,
   mocks_thread_bad_number_of_expectations,
   mocks_no_more_expectations,
+  mocks_no_room_for_expectation,
 } mocks_return_code;
 
 

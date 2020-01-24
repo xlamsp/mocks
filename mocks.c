@@ -5,6 +5,7 @@ static int mocks_number_of_threads;
 static int expect_count;
 static int invoke_count;
 static int *expectations;
+static int max_expectations;
 
 
 mocks_return_code
@@ -41,6 +42,7 @@ mocks_init_thread(
   }
 
   expectations = malloc(number_of_expectations * sizeof(expectations[0]));
+  max_expectations = number_of_expectations;
 
   return mocks_success;
 }
@@ -59,8 +61,13 @@ mocks_expect(
   int         context_size,
   void       *context_data)
 {
+  if (expect_count >= max_expectations) {
+    return mocks_no_room_for_expectation;
+  }
+
   expectations[expect_count] = expectation_id;
   expect_count++;
+
   return mocks_success;
 }
 

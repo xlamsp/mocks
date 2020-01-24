@@ -42,10 +42,8 @@ mocks_expect (
   const mocks_expectation_t  *expectation);
 
 mocks_return_code
-mocks_invoke(
-  int        *expectation_id,
-  int        *context_size,
-  void      **context_data);
+mocks_invoke (
+  mocks_expectation_t        *expectation);
 
 mocks_return_code
 mocks_verify (void);

@@ -147,16 +147,14 @@ TEST(MocksOneThread, ExpectCalledWithPositiveContextSizeAndNullDataFails)
  */
 TEST(MocksOneThread, InvokeCalledBeforeExpectFails)
 {
-  int                 expectation_id;
-  int                 context_size;
-  void               *context_data;
+  mocks_expectation_t invoked;
 
   mocks_return_code   rc;
 
   /*-------------------------------------------
   | Perform test
   -------------------------------------------*/
-  rc = mocks_invoke(&expectation_id, &context_size, &context_data);
+  rc = mocks_invoke(&invoked);
 
   /*-------------------------------------------
   | Verify results
@@ -180,9 +178,11 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
     .context_data = EMPTY_CONTEXT_DATA
   };
 
-  int                 invoked_id = 12345;
-  int                 invoked_context_size = 100;
-  void               *invoked_context_data = (void*)0x12345;
+  mocks_expectation_t invoked = {
+    .id           = 12345,
+    .context_size = 100,
+    .context_data = (void*)0x12345
+  };
 
   mocks_return_code   rc;
 
@@ -198,7 +198,7 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
   /*-------------------------------------------
   | Perform test
   -------------------------------------------*/
-  rc = mocks_invoke(&invoked_id, &invoked_context_size, &invoked_context_data);
+  rc = mocks_invoke(&invoked);
 
   /*-------------------------------------------
   | Verify results
@@ -206,13 +206,13 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc,
     "mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected.id, invoked_id,
+  TEST_ASSERT_EQUAL_MESSAGE(expected.id, invoked.id,
     "mocks_invoke() returned bad expectation_id");
 
-  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size,
+  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked.context_size,
     "mocks_invoke() returned bad context_size");
 
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked_context_data,
+  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked.context_data,
     "mocks_invoke() returned bad context_data");
 }
 
@@ -230,9 +230,11 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
     .context_data = EMPTY_CONTEXT_DATA
   };
 
-  int                 invoked_id = 12345;
-  int                 invoked_context_size = 100;
-  void               *invoked_context_data = (void*)0x12345;
+  mocks_expectation_t invoked = {
+    .id           = 12345,
+    .context_size = 100,
+    .context_data = (void*)0x12345
+  };
 
   mocks_return_code   rc;
 
@@ -249,10 +251,10 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
   | Perform test
   -------------------------------------------*/
   /* first invoke */
-  rc = mocks_invoke(&invoked_id, &invoked_context_size, &invoked_context_data);
+  rc = mocks_invoke(&invoked);
 
   /* second invoke */
-  rc = mocks_invoke(&invoked_id, &invoked_context_size, &invoked_context_data);
+  rc = mocks_invoke(&invoked);
 
   /*-------------------------------------------
   | Verify results
@@ -282,13 +284,17 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
     .context_data = EMPTY_CONTEXT_DATA
   };
 
-  int                 invoked_id1 = 12345;
-  int                 invoked_context_size1 = 100;
-  void               *invoked_context_data1 = (void*)0x12345;
+  mocks_expectation_t invoked1 = {
+    .id           = 12345,
+    .context_size = 100,
+    .context_data = (void*)0x12345
+  };
 
-  int                 invoked_id2 = 56789;
-  int                 invoked_context_size2 = 200;
-  void               *invoked_context_data2 = (void*)0x56789;
+  mocks_expectation_t invoked2 = {
+    .id           = 56789,
+    .context_size = 200,
+    .context_data = (void*)0x56789
+  };
 
   mocks_return_code   rc1, rc2;
 
@@ -313,16 +319,10 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
   | Perform test
   -------------------------------------------*/
   /* first invoke */
-  rc1 = mocks_invoke(
-    &invoked_id1,
-    &invoked_context_size1,
-    &invoked_context_data1);
+  rc1 = mocks_invoke(&invoked1);
 
   /* second invoke */
-  rc2 = mocks_invoke(
-    &invoked_id2,
-    &invoked_context_size2,
-    &invoked_context_data2);
+  rc2 = mocks_invoke(&invoked2);
 
   /*-------------------------------------------
   | Verify results
@@ -331,26 +331,26 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc1,
     "First mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected1.id, invoked_id1,
+  TEST_ASSERT_EQUAL_MESSAGE(expected1.id, invoked1.id,
     "First mocks_invoke() returned bad expectation_id");
 
-  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size1,
+  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked1.context_size,
     "First mocks_invoke() returned bad context_size");
 
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked_context_data1,
+  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked1.context_data,
     "First mocks_invoke() returned bad context_data");
 
   /* second invoke results */
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc2,
     "Second mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected2.id, invoked_id2,
+  TEST_ASSERT_EQUAL_MESSAGE(expected2.id, invoked2.id,
     "Second mocks_invoke() returned bad expectation_id");
 
-  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size2,
+  TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked2.context_size,
     "Second mocks_invoke() returned bad context_size");
 
-  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked_context_data2,
+  TEST_ASSERT_EQUAL_PTR_MESSAGE(EMPTY_CONTEXT_DATA, invoked2.context_data,
     "Second mocks_invoke() returned bad context_data");
 }
 

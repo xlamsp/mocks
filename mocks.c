@@ -89,21 +89,19 @@ mocks_expect(
 
 mocks_return_code
 mocks_invoke(
-  int        *expectation_id,
-  int        *context_size,
-  void      **context_data)
+  mocks_expectation_t        *expectation)
 {
-  mocks_expectation_t *expectation;
+  mocks_expectation_t *exp;
 
   if (mocks_thread.invoke_count >= mocks_thread.expect_count) {
     return mocks_no_more_expectations;
   }
 
-  expectation = &mocks_thread.expectations[mocks_thread.invoke_count];
+  exp = &mocks_thread.expectations[mocks_thread.invoke_count];
 
-  *expectation_id = expectation->id;
-  *context_size = 0;
-  *context_data = NULL;
+  expectation->id = exp->id;
+  expectation->context_size = 0;
+  expectation->context_data = NULL;
   mocks_thread.invoke_count++;
 
   return mocks_success;

@@ -4,9 +4,13 @@
 static int mocks_number_of_threads;
 
 typedef struct {
+  int expectation_id;
+} expectation_t;
+
+typedef struct {
   int expect_count;
   int invoke_count;
-  int *expectations;
+  expectation_t *expectations;
   int max_expectations;
 } mocks_thread_t;
 
@@ -67,11 +71,15 @@ mocks_expect(
   int         context_size,
   void       *context_data)
 {
+  expectation_t *expectation;
+
   if (mocks_thread.expect_count >= mocks_thread.max_expectations) {
     return mocks_no_room_for_expectation;
   }
 
-  mocks_thread.expectations[mocks_thread.expect_count] = expectation_id;
+  expectation = &mocks_thread.expectations[mocks_thread.expect_count];
+
+  expectation->expectation_id = expectation_id;
   mocks_thread.expect_count++;
 
   return mocks_success;
@@ -83,11 +91,15 @@ mocks_invoke(
   int        *context_size,
   void      **context_data)
 {
+  expectation_t *expectation;
+
   if (mocks_thread.invoke_count >= mocks_thread.expect_count) {
     return mocks_no_more_expectations;
   }
 
-  *expectation_id = mocks_thread.expectations[mocks_thread.invoke_count];
+  expectation = &mocks_thread.expectations[mocks_thread.invoke_count];
+
+  *expectation_id = expectation->expectation_id;
   *context_size = 0;
   *context_data = NULL;
   mocks_thread.invoke_count++;

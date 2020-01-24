@@ -17,6 +17,12 @@ typedef enum {
   mocks_invalid_ctx,
 } mocks_return_code;
 
+typedef struct {
+  int         id;
+  int         context_size;
+  void       *context_data;
+} mocks_expectation_t;
+
 
 mocks_return_code
 mocks_init (int number_of_threads, int context_buffer_size);
@@ -32,10 +38,8 @@ mocks_cleanup (void);
 
 mocks_return_code
 mocks_expect (
-  int         thread_index,
-  int         expectation_id,
-  int         context_size,
-  void       *context_data);
+  int                         thread_index,
+  const mocks_expectation_t  *expectation);
 
 mocks_return_code
 mocks_invoke(

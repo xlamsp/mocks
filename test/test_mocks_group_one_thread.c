@@ -56,6 +56,12 @@ TEST_TEAR_DOWN(MocksOneThread)
  */
 TEST(MocksOneThread, ExpectCalledOnceSucceeds)
 {
+  const mocks_expectation_t expected = {
+    .id             = 0,
+    .context_size   = EMPTY_CONTEXT_SIZE,
+    .context_data   = EMPTY_CONTEXT_DATA
+  };
+
   mocks_return_code   rc;
 
   /*-------------------------------------------
@@ -63,9 +69,7 @@ TEST(MocksOneThread, ExpectCalledOnceSucceeds)
   -------------------------------------------*/
   rc = mocks_expect(
     DEFAULT_THREAD_INDEX,
-    0,
-    EMPTY_CONTEXT_SIZE,
-    EMPTY_CONTEXT_DATA);
+    &expected);
 
   /*-------------------------------------------
   | Verify results
@@ -82,7 +86,12 @@ TEST(MocksOneThread, ExpectCalledOnceSucceeds)
  */
 TEST(MocksOneThread, ExpectCalledWithNegativeContextSizeFails)
 {
-  const int           context_size = -1;
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = -1,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
+
   mocks_return_code   rc;
 
   /*-------------------------------------------
@@ -90,9 +99,7 @@ TEST(MocksOneThread, ExpectCalledWithNegativeContextSizeFails)
   -------------------------------------------*/
   rc = mocks_expect(
     DEFAULT_THREAD_INDEX,
-    0,
-    context_size,
-    EMPTY_CONTEXT_DATA);
+    &expected);
 
   /*-------------------------------------------
   | Verify results
@@ -110,7 +117,12 @@ TEST(MocksOneThread, ExpectCalledWithNegativeContextSizeFails)
  */
 TEST(MocksOneThread, ExpectCalledWithPositiveContextSizeAndNullDataFails)
 {
-  const int           context_size = 1;
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = 1,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
+
   mocks_return_code   rc;
 
   /*-------------------------------------------
@@ -118,9 +130,7 @@ TEST(MocksOneThread, ExpectCalledWithPositiveContextSizeAndNullDataFails)
   -------------------------------------------*/
   rc = mocks_expect(
     DEFAULT_THREAD_INDEX,
-    0,
-    context_size,
-    EMPTY_CONTEXT_DATA);
+    &expected);
 
   /*-------------------------------------------
   | Verify results
@@ -164,7 +174,11 @@ TEST(MocksOneThread, InvokeCalledBeforeExpectFails)
  */
 TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
 {
-  const int           expected_id = 0;
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
 
   int                 invoked_id = 12345;
   int                 invoked_context_size = 100;
@@ -178,9 +192,7 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_expect(
       DEFAULT_THREAD_INDEX,
-      expected_id,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA),
+      &expected),
     "mocks_expect() failed");
 
   /*-------------------------------------------
@@ -194,7 +206,7 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc,
     "mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected_id, invoked_id,
+  TEST_ASSERT_EQUAL_MESSAGE(expected.id, invoked_id,
     "mocks_invoke() returned bad expectation_id");
 
   TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size,
@@ -212,7 +224,11 @@ TEST(MocksOneThread, InvokeCalledAfterExpectSucceeds)
  */
 TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
 {
-  const int           expected_id = 0;
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
 
   int                 invoked_id = 12345;
   int                 invoked_context_size = 100;
@@ -226,9 +242,7 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_expect(
       DEFAULT_THREAD_INDEX,
-      expected_id,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA),
+      &expected),
     "mocks_expect() failed");
 
   /*-------------------------------------------
@@ -256,8 +270,17 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails)
  */
 TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
 {
-  const int           expected_id1 = 1;
-  const int           expected_id2 = 2;
+  const mocks_expectation_t expected1 = {
+    .id           = 1,
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
+
+  const mocks_expectation_t expected2 = {
+    .id           = 2,
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
 
   int                 invoked_id1 = 12345;
   int                 invoked_context_size1 = 100;
@@ -276,18 +299,14 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_expect(
       DEFAULT_THREAD_INDEX,
-      expected_id1,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA),
+      &expected1),
     "First mocks_expect() failed");
 
   /* second expect */
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_expect(
       DEFAULT_THREAD_INDEX,
-      expected_id2,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA),
+      &expected2),
     "Second mocks_expect() failed");
 
   /*-------------------------------------------
@@ -312,7 +331,7 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc1,
     "First mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected_id1, invoked_id1,
+  TEST_ASSERT_EQUAL_MESSAGE(expected1.id, invoked_id1,
     "First mocks_invoke() returned bad expectation_id");
 
   TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size1,
@@ -325,7 +344,7 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc2,
     "Second mocks_invoke() failed");
 
-  TEST_ASSERT_EQUAL_MESSAGE(expected_id2, invoked_id2,
+  TEST_ASSERT_EQUAL_MESSAGE(expected2.id, invoked_id2,
     "Second mocks_invoke() returned bad expectation_id");
 
   TEST_ASSERT_EQUAL_MESSAGE(EMPTY_CONTEXT_SIZE, invoked_context_size2,
@@ -344,18 +363,22 @@ TEST(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds)
  */
 TEST(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds)
 {
-  int i;
+  mocks_expectation_t expected = {
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
+
+  int                 i;
   mocks_return_code   rc;
 
   /*-------------------------------------------
   | Perform test
   -------------------------------------------*/
   for (i = 0; i < NUM_EXPECTATIONS; i++) {
+    expected.id = i;
     rc = mocks_expect(
       DEFAULT_THREAD_INDEX,
-      i,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA);
+      &expected);
   }
 
   /*-------------------------------------------
@@ -374,7 +397,12 @@ TEST(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds)
  */
 TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
 {
-  int i;
+  mocks_expectation_t expected = {
+    .context_size = EMPTY_CONTEXT_SIZE,
+    .context_data = EMPTY_CONTEXT_DATA
+  };
+
+  int                 i;
   mocks_return_code   rc;
 
   /*-------------------------------------------
@@ -382,19 +410,17 @@ TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
   -------------------------------------------*/
   /* call "expect" up to max number of expectations */
   for (i = 0; i < NUM_EXPECTATIONS; i++) {
+    expected.id = i;
     rc = mocks_expect(
       DEFAULT_THREAD_INDEX,
-      i,
-      EMPTY_CONTEXT_SIZE,
-      EMPTY_CONTEXT_DATA);
+      &expected);
   }
 
   /* call "expect" one more time to exceed max number of expectations */
+  expected.id = i;
   rc = mocks_expect(
     DEFAULT_THREAD_INDEX,
-    i,
-    EMPTY_CONTEXT_SIZE,
-    EMPTY_CONTEXT_DATA);
+    &expected);
 
   /*-------------------------------------------
   | Verify results

@@ -67,6 +67,10 @@ mocks_expect(
 {
   mocks_expectation_t *exp;
 
+  if (!expectation) {
+    return mocks_invalid_argument;
+  }
+
   if (expectation->context_size < 0) {
     return mocks_invalid_ctx_size;
   }

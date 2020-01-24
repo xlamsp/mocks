@@ -79,6 +79,32 @@ TEST(MocksOneThread, ExpectCalledOnceSucceeds)
 }
 
 /*
+ * Scenario: "expect" called with NULL expectation fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() with NULL expectation;
+ * Then:     Returned code mocks_invalid_argument.
+ */
+TEST(MocksOneThread, ExpectCalledWithNullExpectationFails)
+{
+  mocks_expectation_t *expected = NULL;
+
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  rc = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    expected);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_invalid_argument, rc,
+    "Expected status: mocks_invalid_argument");
+}
+
+/*
  * Scenario: "expect" called with negative context size fails;
  * Given:    Mocks and thread initialized;
  * When:     Called mocks_expect() with negative context_size;
@@ -435,6 +461,7 @@ TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
 TEST_GROUP_RUNNER(MocksOneThread)
 {
   RUN_TEST_CASE(MocksOneThread, ExpectCalledOnceSucceeds);
+  RUN_TEST_CASE(MocksOneThread, ExpectCalledWithNullExpectationFails);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledWithNegativeContextSizeFails);
   RUN_TEST_CASE(MocksOneThread,
     ExpectCalledWithPositiveContextSizeAndNullDataFails);

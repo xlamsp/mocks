@@ -15,6 +15,7 @@ typedef enum {
   mocks_no_room_for_expectation,
   mocks_invalid_ctx_size,
   mocks_invalid_ctx,
+  mocks_invalid_argument,
 } mocks_return_code;
 
 typedef struct {

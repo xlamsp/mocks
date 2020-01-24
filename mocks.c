@@ -73,6 +73,10 @@ mocks_expect(
 {
   expectation_t *expectation;
 
+  if (context_size < 0) {
+    return mocks_invalid_ctx_size;
+  }
+
   if (mocks_thread.expect_count >= mocks_thread.max_expectations) {
     return mocks_no_room_for_expectation;
   }

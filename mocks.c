@@ -97,6 +97,10 @@ mocks_invoke(
 {
   mocks_expectation_t *exp;
 
+  if (!expectation) {
+    return mocks_invalid_argument;
+  }
+
   if (mocks_thread.invoke_count >= mocks_thread.expect_count) {
     return mocks_no_more_expectations;
   }

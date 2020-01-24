@@ -166,6 +166,30 @@ TEST(MocksOneThread, ExpectCalledWithPositiveContextSizeAndNullDataFails)
 }
 
 /*
+ * Scenario: "invoke" called with NULL expectation fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_invoke() with NULL expectation;
+ * Then:     Returned code mocks_invalid_argument.
+ */
+TEST(MocksOneThread, InvokeCalledWithNullExpectationFails)
+{
+  mocks_expectation_t *invoked = NULL;
+
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  rc = mocks_invoke(invoked);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_invalid_argument, rc,
+    "Expected status: mocks_invalid_argument");
+}
+
+/*
  * Scenario: "invoke" called prior to "expect" fails;
  * Given:    Mocks and thread initialized;
  * When:     Called mocks_invoke() without preceeding mocks_expect();
@@ -465,6 +489,7 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, ExpectCalledWithNegativeContextSizeFails);
   RUN_TEST_CASE(MocksOneThread,
     ExpectCalledWithPositiveContextSizeAndNullDataFails);
+  RUN_TEST_CASE(MocksOneThread, InvokeCalledWithNullExpectationFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledBeforeExpectFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledAfterExpectSucceeds);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails);

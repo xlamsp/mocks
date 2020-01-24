@@ -2,11 +2,16 @@
 #include <stdlib.h>
 
 static int mocks_number_of_threads;
-static int expect_count;
-static int invoke_count;
-static int *expectations;
-static int max_expectations;
 
+typedef struct {
+  int expect_count;
+  int invoke_count;
+  int *expectations;
+  int max_expectations;
+} mocks_thread_t;
+
+
+static mocks_thread_t mocks_thread;
 
 mocks_return_code
 mocks_init(int number_of_threads, int context_buffer_size)
@@ -41,8 +46,9 @@ mocks_init_thread(
     return mocks_thread_bad_number_of_expectations;
   }
 
-  expectations = malloc(number_of_expectations * sizeof(expectations[0]));
-  max_expectations = number_of_expectations;
+  mocks_thread.expectations =
+    malloc(number_of_expectations * sizeof(mocks_thread.expectations[0]));
+  mocks_thread.max_expectations = number_of_expectations;
 
   return mocks_success;
 }
@@ -51,7 +57,7 @@ void
 mocks_cleanup(void)
 {
   mocks_number_of_threads = 0;
-  free(expectations);
+  free(mocks_thread.expectations);
 }
 
 mocks_return_code
@@ -61,12 +67,12 @@ mocks_expect(
   int         context_size,
   void       *context_data)
 {
-  if (expect_count >= max_expectations) {
+  if (mocks_thread.expect_count >= mocks_thread.max_expectations) {
     return mocks_no_room_for_expectation;
   }
 
-  expectations[expect_count] = expectation_id;
-  expect_count++;
+  mocks_thread.expectations[mocks_thread.expect_count] = expectation_id;
+  mocks_thread.expect_count++;
 
   return mocks_success;
 }
@@ -77,14 +83,14 @@ mocks_invoke(
   int        *context_size,
   void      **context_data)
 {
-  if (invoke_count >= expect_count) {
+  if (mocks_thread.invoke_count >= mocks_thread.expect_count) {
     return mocks_no_more_expectations;
   }
 
-  *expectation_id = expectations[invoke_count];
+  *expectation_id = mocks_thread.expectations[mocks_thread.invoke_count];
   *context_size = 0;
   *context_data = NULL;
-  invoke_count++;
+  mocks_thread.invoke_count++;
 
   return mocks_success;
 }

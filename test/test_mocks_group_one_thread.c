@@ -102,6 +102,34 @@ TEST(MocksOneThread, ExpectCalledWithNegativeContextSizeFails)
 }
 
 /*
+ * Scenario: "expect" called with positive context size and NULL data fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() with positive context_size
+ *           and NULL context_data;
+ * Then:     Returned code mocks_invalid_ctx.
+ */
+TEST(MocksOneThread, ExpectCalledWithPositiveContextSizeAndNullDataFails)
+{
+  const int           context_size = 1;
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  rc = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    0,
+    context_size,
+    EMPTY_CONTEXT_DATA);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_invalid_ctx, rc,
+    "Expected status: mocks_invalid_ctx");
+}
+
+/*
  * Scenario: "invoke" called prior to "expect" fails;
  * Given:    Mocks and thread initialized;
  * When:     Called mocks_invoke() without preceeding mocks_expect();
@@ -382,6 +410,8 @@ TEST_GROUP_RUNNER(MocksOneThread)
 {
   RUN_TEST_CASE(MocksOneThread, ExpectCalledOnceSucceeds);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledWithNegativeContextSizeFails);
+  RUN_TEST_CASE(MocksOneThread,
+    ExpectCalledWithPositiveContextSizeAndNullDataFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledBeforeExpectFails);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledAfterExpectSucceeds);
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterSingleExpectFails);

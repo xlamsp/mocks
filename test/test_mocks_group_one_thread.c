@@ -552,7 +552,7 @@ TEST(MocksOneThread, ExpectCanPassNonEmptyContext)
 }
 
 /*
- * Scenario: "expect" pasing context exceeding context_buffer_size fails;
+ * Scenario: "expect" passing context exceeding context_buffer_size fails;
  * Given:    Mocks and thread initialized;
  * When:     Called mocks_expect() with context exceeding context_buffer_size;
  * Then:     Returned code mocks_no_room_for_ctx_data.
@@ -590,6 +590,106 @@ TEST(MocksOneThread, ExpectPassingContextExceedingMaxSizeFails)
     "Expected status: mocks_no_room_for_ctx_data");
 }
 
+/*
+ * Scenario: "expect" can pass multiple non-empty context expectations;
+ * Given:    Called mocks_expect() with different non-empty contexts twice;
+ * When:     Called mocks_invoke() twice;
+ * Then:     Both "invoke" return mocks_success and matching expectation_id's
+ *           and retrieved contexts matching original contexts.
+ */
+TEST(MocksOneThread, ExpectCanPassMultipleNonEmptyContexts)
+{
+  const int expectation_id1 = 10;
+  const int expectation_id2 = 20;
+  const uint8_t reference_data1[] = {5, 6, 7, 8, 9};
+  const uint8_t reference_data2[] = {10, 20, 30, 40};
+
+  mocks_expectation_t expected;
+
+  mocks_expectation_t invoked1 = {
+    .id           = 12345,
+    .context_size = 100,
+    .context_data = NULL
+  };
+
+  mocks_expectation_t invoked2 = {
+    .id           = 56789,
+    .context_size = 150,
+    .context_data = NULL
+  };
+
+  mocks_return_code   rc1, rc2;
+
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  /* first "expect" */
+  expected.id = expectation_id1;
+  expected.context_size = sizeof(reference_data1);
+  expected.context_data = (void*)reference_data1;
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      &expected),
+    "First mocks_expect() failed");
+
+  /* second "expect" */
+  expected.id = expectation_id2;
+  expected.context_size = sizeof(reference_data2);
+  expected.context_data = (void*)reference_data2;
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      &expected),
+    "Second mocks_expect() failed");
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  /* first "invoke" */
+  rc1 = mocks_invoke(&invoked1);
+
+  /* second "invoke" */
+  rc2 = mocks_invoke(&invoked2);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  /* verify first "invoke" results */
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc1,
+    "First mocks_invoke() failed");
+
+  TEST_ASSERT_EQUAL_MESSAGE(expectation_id1, invoked1.id,
+    "First mocks_invoke() returned bad expectation_id");
+
+  TEST_ASSERT_EQUAL_MESSAGE(sizeof(reference_data1), invoked1.context_size,
+    "First mocks_invoke() returned bad context_size");
+
+  TEST_ASSERT_NOT_NULL_MESSAGE(invoked1.context_data,
+    "First mocks_invoke() returned NULL context_data");
+
+  TEST_ASSERT_EQUAL_MEMORY_MESSAGE(
+    reference_data1, invoked1.context_data, invoked1.context_size,
+    "First mocks_invoke() context_data does not match");
+
+  /* verify second "invoke" results */
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc2,
+    "Second mocks_invoke() failed");
+
+  TEST_ASSERT_EQUAL_MESSAGE(expectation_id2, invoked2.id,
+    "Second mocks_invoke() returned bad expectation_id");
+
+  TEST_ASSERT_EQUAL_MESSAGE(sizeof(reference_data2), invoked2.context_size,
+    "Second mocks_invoke() returned bad context_size");
+
+  TEST_ASSERT_NOT_NULL_MESSAGE(invoked2.context_data,
+    "Second mocks_invoke() returned NULL context_data");
+
+  TEST_ASSERT_EQUAL_MEMORY_MESSAGE(
+    reference_data2, invoked2.context_data, invoked2.context_size,
+    "Second mocks_invoke() context_data does not match");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -609,4 +709,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails);
   RUN_TEST_CASE(MocksOneThread, ExpectCanPassNonEmptyContext);
   RUN_TEST_CASE(MocksOneThread, ExpectPassingContextExceedingMaxSizeFails);
+  RUN_TEST_CASE(MocksOneThread, ExpectCanPassMultipleNonEmptyContexts);
 }

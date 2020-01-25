@@ -14,4 +14,5 @@ void test_mocks_reset_static_variables(void)
   memset(&mocks_thread, 0, sizeof(mocks_thread));
   context_size = 0;
   context_data = NULL;
+  context_used = 0;
 }

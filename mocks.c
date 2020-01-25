@@ -5,6 +5,7 @@
 static int mocks_number_of_threads;
 static int context_size;
 static uint8_t *context_data;
+static int context_used;
 
 typedef struct {
   int expect_count;
@@ -26,6 +27,7 @@ mocks_init(int number_of_threads, int context_buffer_size)
   mocks_number_of_threads = number_of_threads;
   context_size = context_buffer_size;
   context_data = malloc(context_buffer_size);
+  context_used = 0;
   return mocks_success;
 }
 
@@ -98,8 +100,12 @@ mocks_expect(
   expectation->id = expected->id;
   expectation->context_size = expected->context_size;
   if (expected->context_size) {
-    memcpy(context_data, expected->context_data, expected->context_size);
-    expectation->context_data = context_data;
+    expectation->context_data = context_data + context_used;
+    memcpy(
+      expectation->context_data,
+      expected->context_data,
+      expected->context_size);
+    context_used += expected->context_size;
   } else {
     expectation->context_data = NULL;
   }

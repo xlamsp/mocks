@@ -1,7 +1,9 @@
 #include "mocks.h"
 #include <stdlib.h>
+#include <string.h>
 
 static int mocks_number_of_threads;
+static uint8_t context_data[10];
 
 typedef struct {
   int expect_count;
@@ -86,6 +88,13 @@ mocks_expect(
   expectation = &mocks_thread.expectations[mocks_thread.expect_count];
 
   expectation->id = expected->id;
+  expectation->context_size = expected->context_size;
+  if (expected->context_size) {
+    memcpy(context_data, expected->context_data, expected->context_size);
+    expectation->context_data = context_data;
+  } else {
+    expectation->context_data = NULL;
+  }
   mocks_thread.expect_count++;
 
   return mocks_success;
@@ -95,8 +104,6 @@ mocks_return_code
 mocks_invoke(
   mocks_expectation_t        *invoked)
 {
-  mocks_expectation_t *expectation;
-
   if (!invoked) {
     return mocks_invalid_argument;
   }
@@ -105,11 +112,7 @@ mocks_invoke(
     return mocks_no_more_expectations;
   }
 
-  expectation = &mocks_thread.expectations[mocks_thread.invoke_count];
-
-  invoked->id = expectation->id;
-  invoked->context_size = 0;
-  invoked->context_data = NULL;
+  *invoked = mocks_thread.expectations[mocks_thread.invoke_count];
   mocks_thread.invoke_count++;
 
   return mocks_success;

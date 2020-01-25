@@ -1,5 +1,6 @@
 #include "mocks.h"
 #include "unity_fixture.h"
+#include <string.h>
 
 /*******************************************************************************
  * MocksOneThread test group
@@ -479,6 +480,73 @@ TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
     "Expected status: mocks_no_room_for_expectation");
 }
 
+/*
+ * Scenario: "expect" can pass non-empty context;
+ * Given:    Called mocks_expect() with non-empty context;
+ * When:     Destroyed the passed context data and called mocks_invoke();
+ * Then:     Returned code mocks_success and matching expectation_id
+ *           and retrieved context matching original context.
+ */
+TEST(MocksOneThread, ExpectCanPassNonEmptyContext)
+{
+  const uint8_t reference_data[] = {1, 2, 3, 4, 5};
+
+  uint8_t expected_data[sizeof(reference_data)];
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = sizeof(reference_data),
+    .context_data = expected_data
+  };
+
+  mocks_expectation_t invoked = {
+    .id           = 12345,
+    .context_size = 100,
+    .context_data = NULL
+  };
+
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  memcpy(expected_data, reference_data, sizeof(reference_data));
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  /* pass non-empty context to "expect" */
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
+    mocks_expect(
+      DEFAULT_THREAD_INDEX,
+      &expected),
+    "mocks_expect() failed");
+
+  /* destroy the passed context to make sure the data was saved */
+  memset(expected_data, 0xaa, sizeof(expected_data));
+
+  /* retrieve expectation with "invoke" */
+  rc = mocks_invoke(&invoked);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc,
+    "mocks_invoke() failed");
+
+  TEST_ASSERT_EQUAL_MESSAGE(expected.id, invoked.id,
+    "mocks_invoke() returned bad expectation_id");
+
+  TEST_ASSERT_EQUAL_MESSAGE(expected.context_size, invoked.context_size,
+    "mocks_invoke() returned bad context_size");
+
+  TEST_ASSERT_NOT_NULL_MESSAGE(invoked.context_data,
+    "mocks_invoke() returned NULL context_data");
+
+  TEST_ASSERT_EQUAL_MEMORY_MESSAGE(
+    reference_data, invoked.context_data, invoked.context_size,
+    "mocks_invoke() context_data does not match");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -496,4 +564,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, InvokeCalledTwiceAfterExpectTwiceSucceeds);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails);
+  RUN_TEST_CASE(MocksOneThread, ExpectCanPassNonEmptyContext);
 }

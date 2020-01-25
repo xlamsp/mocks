@@ -63,19 +63,19 @@ mocks_cleanup(void)
 mocks_return_code
 mocks_expect(
   int                         thread_index,
-  const mocks_expectation_t  *expectation)
+  const mocks_expectation_t  *expected)
 {
-  mocks_expectation_t *exp;
+  mocks_expectation_t *expectation;
 
-  if (!expectation) {
+  if (!expected) {
     return mocks_invalid_argument;
   }
 
-  if (expectation->context_size < 0) {
+  if (expected->context_size < 0) {
     return mocks_invalid_ctx_size;
   }
 
-  if (expectation->context_size > 0 && !expectation->context_data) {
+  if (expected->context_size > 0 && !expected->context_data) {
     return mocks_invalid_ctx;
   }
 
@@ -83,9 +83,9 @@ mocks_expect(
     return mocks_no_room_for_expectation;
   }
 
-  exp = &mocks_thread.expectations[mocks_thread.expect_count];
+  expectation = &mocks_thread.expectations[mocks_thread.expect_count];
 
-  exp->id = expectation->id;
+  expectation->id = expected->id;
   mocks_thread.expect_count++;
 
   return mocks_success;
@@ -93,11 +93,11 @@ mocks_expect(
 
 mocks_return_code
 mocks_invoke(
-  mocks_expectation_t        *expectation)
+  mocks_expectation_t        *invoked)
 {
-  mocks_expectation_t *exp;
+  mocks_expectation_t *expectation;
 
-  if (!expectation) {
+  if (!invoked) {
     return mocks_invalid_argument;
   }
 
@@ -105,11 +105,11 @@ mocks_invoke(
     return mocks_no_more_expectations;
   }
 
-  exp = &mocks_thread.expectations[mocks_thread.invoke_count];
+  expectation = &mocks_thread.expectations[mocks_thread.invoke_count];
 
-  expectation->id = exp->id;
-  expectation->context_size = 0;
-  expectation->context_data = NULL;
+  invoked->id = expectation->id;
+  invoked->context_size = 0;
+  invoked->context_data = NULL;
   mocks_thread.invoke_count++;
 
   return mocks_success;

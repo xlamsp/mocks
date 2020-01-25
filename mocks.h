@@ -40,11 +40,11 @@ mocks_cleanup (void);
 mocks_return_code
 mocks_expect (
   int                         thread_index,
-  const mocks_expectation_t  *expectation);
+  const mocks_expectation_t  *expected);
 
 mocks_return_code
 mocks_invoke (
-  mocks_expectation_t        *expectation);
+  mocks_expectation_t        *invoked);
 
 mocks_return_code
 mocks_verify (void);

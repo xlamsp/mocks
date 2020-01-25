@@ -3,6 +3,7 @@
 #include <string.h>
 
 static int mocks_number_of_threads;
+static int context_size;
 static uint8_t *context_data;
 
 typedef struct {
@@ -23,6 +24,7 @@ mocks_init(int number_of_threads, int context_buffer_size)
   }
 
   mocks_number_of_threads = number_of_threads;
+  context_size = context_buffer_size;
   context_data = malloc(context_buffer_size);
   return mocks_success;
 }
@@ -85,6 +87,10 @@ mocks_expect(
 
   if (mocks_thread.expect_count >= mocks_thread.max_expectations) {
     return mocks_no_room_for_expectation;
+  }
+
+  if (expected->context_size > context_size) {
+    return mocks_no_room_for_ctx_data;
   }
 
   expectation = &mocks_thread.expectations[mocks_thread.expect_count];

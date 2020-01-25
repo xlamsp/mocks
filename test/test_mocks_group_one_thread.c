@@ -551,6 +551,45 @@ TEST(MocksOneThread, ExpectCanPassNonEmptyContext)
     "mocks_invoke() context_data does not match");
 }
 
+/*
+ * Scenario: "expect" pasing context exceeding context_buffer_size fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() with context exceeding context_buffer_size;
+ * Then:     Returned code mocks_no_room_for_ctx_data.
+ */
+TEST(MocksOneThread, ExpectPassingContextExceedingMaxSizeFails)
+{
+  uint8_t expected_data[CONTEXT_BUFFER_SIZE + 1];
+  const mocks_expectation_t expected = {
+    .id           = 0,
+    .context_size = sizeof(expected_data),
+    .context_data = expected_data
+  };
+
+  int                 i;
+  mocks_return_code   rc;
+
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  for (i = 0; i < sizeof(expected_data); i++) {
+    expected_data[i] = (uint8_t)i;
+  }
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  rc = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    &expected);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_room_for_ctx_data, rc,
+    "Expected status: mocks_no_room_for_ctx_data");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -569,4 +608,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, ExpectCalledUpToMaxExpectationsSucceeds);
   RUN_TEST_CASE(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails);
   RUN_TEST_CASE(MocksOneThread, ExpectCanPassNonEmptyContext);
+  RUN_TEST_CASE(MocksOneThread, ExpectPassingContextExceedingMaxSizeFails);
 }

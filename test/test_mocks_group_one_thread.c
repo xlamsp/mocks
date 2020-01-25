@@ -481,7 +481,7 @@ TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
 }
 
 /*
- * Scenario: "expect" can pass non-empty context;
+ * Scenario: "expect" can pass non-empty context up to context_buffer_size size;
  * Given:    Called mocks_expect() with non-empty context;
  * When:     Destroyed the passed context data and called mocks_invoke();
  * Then:     Returned code mocks_success and matching expectation_id
@@ -489,7 +489,7 @@ TEST(MocksOneThread, ExpectCalledMoreThanMaxExpectationsFails)
  */
 TEST(MocksOneThread, ExpectCanPassNonEmptyContext)
 {
-  const uint8_t reference_data[] = {1, 2, 3, 4, 5};
+  uint8_t reference_data[CONTEXT_BUFFER_SIZE];
 
   uint8_t expected_data[sizeof(reference_data)];
   const mocks_expectation_t expected = {
@@ -504,11 +504,15 @@ TEST(MocksOneThread, ExpectCanPassNonEmptyContext)
     .context_data = NULL
   };
 
+  int                 i;
   mocks_return_code   rc;
 
   /*-------------------------------------------
   | Set expectations
   -------------------------------------------*/
+  for (i = 0; i < sizeof(reference_data); i++) {
+    reference_data[i] = (uint8_t)i;
+  }
   memcpy(expected_data, reference_data, sizeof(reference_data));
 
   /*-------------------------------------------

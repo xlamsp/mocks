@@ -96,6 +96,11 @@ TEST(MocksInit, MocksInitWithOneThreadsAndOneByteContextSucceeds)
   -------------------------------------------*/
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success, mocks_init(1, 1),
     "number_of_threads == 1, context_buffer_size == 1");
+
+  /*-------------------------------------------
+  | Cleanup
+  -------------------------------------------*/
+  mocks_cleanup();
 }
 
 /*
@@ -132,6 +137,11 @@ TEST(MocksInit, MocksInitThreadWithBadArgumentsFails)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_thread_bad_number_of_expectations,
     mocks_init_thread(number_of_threads - 1, &thread_main, 0),
     "Expected status: mocks_thread_bad_number_of_expectations");
+
+  /*-------------------------------------------
+  | Cleanup
+  -------------------------------------------*/
+  mocks_cleanup();
 }
 
 /*
@@ -217,6 +227,11 @@ TEST(MocksInit, MocksVerifyAfterMocksInitSucceeds)
   TEST_ASSERT_EQUAL_MESSAGE(mocks_success,
     mocks_verify(),
     "Returned status not match");
+
+  /*-------------------------------------------
+  | Cleanup
+  -------------------------------------------*/
+  mocks_cleanup();
 }
 
 /*******************************************************************************

@@ -3,7 +3,7 @@
 #include <string.h>
 
 static int mocks_number_of_threads;
-static uint8_t context_data[10];
+static uint8_t *context_data;
 
 typedef struct {
   int expect_count;
@@ -23,6 +23,7 @@ mocks_init(int number_of_threads, int context_buffer_size)
   }
 
   mocks_number_of_threads = number_of_threads;
+  context_data = malloc(context_buffer_size);
   return mocks_success;
 }
 
@@ -60,6 +61,7 @@ mocks_cleanup(void)
 {
   mocks_number_of_threads = 0;
   free(mocks_thread.expectations);
+  free(context_data);
 }
 
 mocks_return_code

@@ -2,10 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-static int mocks_number_of_threads;
-static int context_size;
-static uint8_t *context_data;
-static int context_used;
 
 typedef struct {
   int expect_count;
@@ -14,8 +10,15 @@ typedef struct {
   int max_expectations;
 } mocks_thread_t;
 
+static struct {
+  int number_of_threads;
+  mocks_thread_t thread;
 
-static mocks_thread_t mocks_thread;
+  int context_size;
+  int context_used;
+  uint8_t *context_data;
+} mocks;
+
 
 mocks_return_code
 mocks_init(int number_of_threads, int context_buffer_size)
@@ -24,10 +27,10 @@ mocks_init(int number_of_threads, int context_buffer_size)
     return mocks_not_initialized;
   }
 
-  mocks_number_of_threads = number_of_threads;
-  context_size = context_buffer_size;
-  context_data = malloc(context_buffer_size);
-  context_used = 0;
+  mocks.number_of_threads = number_of_threads;
+  mocks.context_size = context_buffer_size;
+  mocks.context_data = malloc(context_buffer_size);
+  mocks.context_used = 0;
   return mocks_success;
 }
 
@@ -37,11 +40,11 @@ mocks_init_thread(
   pthread_t  *thread_id,
   int         number_of_expectations)
 {
-  if (mocks_number_of_threads <= 0) {
+  if (mocks.number_of_threads <= 0) {
     return mocks_not_initialized;
   }
 
-  if (thread_index >= mocks_number_of_threads) {
+  if (thread_index >= mocks.number_of_threads) {
     return mocks_thread_index_out_of_range;
   }
 
@@ -53,9 +56,9 @@ mocks_init_thread(
     return mocks_thread_bad_number_of_expectations;
   }
 
-  mocks_thread.expectations =
-    malloc(number_of_expectations * sizeof(mocks_thread.expectations[0]));
-  mocks_thread.max_expectations = number_of_expectations;
+  mocks.thread.expectations =
+    malloc(number_of_expectations * sizeof(mocks.thread.expectations[0]));
+  mocks.thread.max_expectations = number_of_expectations;
 
   return mocks_success;
 }
@@ -63,9 +66,9 @@ mocks_init_thread(
 void
 mocks_cleanup(void)
 {
-  mocks_number_of_threads = 0;
-  free(mocks_thread.expectations);
-  free(context_data);
+  mocks.number_of_threads = 0;
+  free(mocks.thread.expectations);
+  free(mocks.context_data);
 }
 
 mocks_return_code
@@ -87,29 +90,29 @@ mocks_expect(
     return mocks_invalid_ctx;
   }
 
-  if (mocks_thread.expect_count >= mocks_thread.max_expectations) {
+  if (mocks.thread.expect_count >= mocks.thread.max_expectations) {
     return mocks_no_room_for_expectation;
   }
 
-  if (expected->context_size > context_size) {
+  if (expected->context_size > mocks.context_size) {
     return mocks_no_room_for_ctx_data;
   }
 
-  expectation = &mocks_thread.expectations[mocks_thread.expect_count];
+  expectation = &mocks.thread.expectations[mocks.thread.expect_count];
 
   expectation->id = expected->id;
   expectation->context_size = expected->context_size;
   if (expected->context_size) {
-    expectation->context_data = context_data + context_used;
+    expectation->context_data = mocks.context_data + mocks.context_used;
     memcpy(
       expectation->context_data,
       expected->context_data,
       expected->context_size);
-    context_used += expected->context_size;
+    mocks.context_used += expected->context_size;
   } else {
     expectation->context_data = NULL;
   }
-  mocks_thread.expect_count++;
+  mocks.thread.expect_count++;
 
   return mocks_success;
 }
@@ -122,12 +125,12 @@ mocks_invoke(
     return mocks_invalid_argument;
   }
 
-  if (mocks_thread.invoke_count >= mocks_thread.expect_count) {
+  if (mocks.thread.invoke_count >= mocks.thread.expect_count) {
     return mocks_no_more_expectations;
   }
 
-  *invoked = mocks_thread.expectations[mocks_thread.invoke_count];
-  mocks_thread.invoke_count++;
+  *invoked = mocks.thread.expectations[mocks.thread.invoke_count];
+  mocks.thread.invoke_count++;
 
   return mocks_success;
 }
@@ -135,7 +138,7 @@ mocks_invoke(
 mocks_return_code
 mocks_verify(void)
 {
-  if (mocks_number_of_threads <= 0) {
+  if (mocks.number_of_threads <= 0) {
     return mocks_not_initialized;
   }
 

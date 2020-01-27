@@ -94,7 +94,7 @@ mocks_expect(
     return mocks_no_room_for_expectation;
   }
 
-  if (expected->context_size > mocks.context_size) {
+  if (expected->context_size > mocks.context_size - mocks.context_used) {
     return mocks_no_room_for_ctx_data;
   }
 

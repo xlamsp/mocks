@@ -690,6 +690,59 @@ TEST(MocksOneThread, ExpectCanPassMultipleNonEmptyContexts)
     "Second mocks_invoke() context_data does not match");
 }
 
+/*
+ * Scenario: "expect" passing context exceeding remaining context buffer fails;
+ * Given:    Mocks and thread initialized;
+ * When:     Called mocks_expect() with non empty context twice, the first
+ *           context uses half of the context buffer, the second one uses
+ *           the remaining context buffer + 1 byte;
+ * Then:     First "expect" returns mocks_success,
+ *           second - mocks_no_room_for_ctx_data.
+ */
+TEST(MocksOneThread, ExpectPassingContextExceedingRemainingSizeFails)
+{
+  uint8_t expected_data[CONTEXT_BUFFER_SIZE / 2 + 1];
+  mocks_expectation_t expected = {
+    .context_data = expected_data
+  };
+
+  int                 i;
+  mocks_return_code   rc1, rc2;
+
+  /*-------------------------------------------
+  | Set expectations
+  -------------------------------------------*/
+  for (i = 0; i < sizeof(expected_data); i++) {
+    expected_data[i] = (uint8_t)i;
+  }
+
+  /*-------------------------------------------
+  | Perform test
+  -------------------------------------------*/
+  /* first "expect" */
+  expected.id = 1;
+  expected.context_size = CONTEXT_BUFFER_SIZE / 2;
+  rc1 = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    &expected);
+
+  /* second "expect" */
+  expected.id = 2;
+  expected.context_size = CONTEXT_BUFFER_SIZE - CONTEXT_BUFFER_SIZE / 2 + 1;
+  rc2 = mocks_expect(
+    DEFAULT_THREAD_INDEX,
+    &expected);
+
+  /*-------------------------------------------
+  | Verify results
+  -------------------------------------------*/
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_success, rc1,
+    "First expected status: mocks_success");
+
+  TEST_ASSERT_EQUAL_MESSAGE(mocks_no_room_for_ctx_data, rc2,
+    "Second expected status: mocks_no_room_for_ctx_data");
+}
+
 /*******************************************************************************
  * Test group runner
  ******************************************************************************/
@@ -710,4 +763,5 @@ TEST_GROUP_RUNNER(MocksOneThread)
   RUN_TEST_CASE(MocksOneThread, ExpectCanPassNonEmptyContext);
   RUN_TEST_CASE(MocksOneThread, ExpectPassingContextExceedingMaxSizeFails);
   RUN_TEST_CASE(MocksOneThread, ExpectCanPassMultipleNonEmptyContexts);
+  RUN_TEST_CASE(MocksOneThread, ExpectPassingContextExceedingRemainingSizeFails);
 }
